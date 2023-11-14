@@ -50,7 +50,7 @@ uint64_t Writer::bytes_pushed() const
 string_view Reader::peek() const
 {
   // Your code here.
-  return { queue_ };
+  return queue_;
 }
 
 bool Reader::is_finished() const

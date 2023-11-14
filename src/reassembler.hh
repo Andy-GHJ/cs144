@@ -1,11 +1,22 @@
 #pragma once
-
 #include "byte_stream.hh"
 
+#include <list>
+#include <map>
 #include <string>
-
 class Reassembler
 {
+private:
+  uint64_t first_unassembled_index { 0 };
+
+  std::list<std::pair<uint64_t, std::string>> buffer {};
+  uint64_t buffer_size { 0 };
+  bool has_last { false };
+  void insert_into_buffer( uint64_t first_index, std::string&& data, bool is_last_substring );
+
+  // pop invalid bytes and insert valid bytes into writer
+  void pop_from_buffer( Writer& output );
+
 public:
   /*
    * Insert a new substring to be reassembled into a ByteStream.
@@ -27,6 +38,7 @@ public:
    *
    * The Reassembler should close the stream after writing the last byte.
    */
+
   void insert( uint64_t first_index, std::string data, bool is_last_substring, Writer& output );
 
   // How many bytes are stored in the Reassembler itself?
