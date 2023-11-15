@@ -68,29 +68,36 @@ void Reassembler::insert_into_buffer( const uint64_t first_index, std::string&& 
   const auto end_index = first_index + data.size();
 
   for ( auto it = buffer.begin(); it != buffer.end() && begin_index < end_index; ) {
-    if ( it->first <= begin_index ) {
+    if ( begin_index >= it->first ) {
       begin_index = max(
         begin_index, it->first + it->second.size() ); // it->first + it->second.size() 是当前缓冲区一个数据片的结尾
-      ++it;
+      ++it; // 跳到下一个数据片，因为从begin_index开始到it->first + it->second.size()的数据已经全部在缓冲区了
       continue;
     }
 
-    if ( begin_index == first_index && end_index <= it->first ) {
+    if ( begin_index == first_index && end_index <= it->first ) { // data 在 it 之前，直接插入就结束
       buffer_size += data.size();
-      buffer.emplace( it, first_index, std::move( data ) );
+      buffer.emplace(
+        it, first_index, std::move( data ) ); // 在 it 之前插入一个数据片, data用完之后可以废弃，所以用move
       return;
     }
 
+    // 下面的情况data可能横跨多个数据片
     const auto right_index = min( it->first, end_index );
     const auto len = right_index - begin_index;
-    buffer.emplace( it, begin_index, data.substr( begin_index - first_index, len ) );
+    buffer.emplace(
+      it,
+      begin_index,
+      data.substr( begin_index - first_index,
+                   len ) ); // 插入一个数据片，（直接于 pos 前插入元素到容器中）操作之后，it 仍然指向原来的元素
     buffer_size += len;
     begin_index = right_index;
   }
 
+  // 缓冲区访问完了，但是data还有剩余
   if ( begin_index < end_index ) {
     buffer_size += end_index - begin_index;
-    buffer.emplace_back( begin_index, data.substr( begin_index - first_index ) );
+    buffer.emplace_back( begin_index, data.substr( begin_index - first_index ) ); // 在缓冲区末尾插入一个数据片
   }
 
   if ( is_last_substring ) {
