@@ -6,6 +6,10 @@
 
 class TCPReceiver
 {
+protected:
+  Wrap32 isn { 0 };       // 初始序列号
+  bool rcv_syn { false }; // 是否接收到syn
+
 public:
   /*
    * The TCPReceiver receives TCPSenderMessages, inserting their payload into the Reassembler
