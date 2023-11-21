@@ -36,10 +36,17 @@ class NetworkInterface
 {
 private:
   // Ethernet (known as hardware, network-access, or link-layer) address of the interface
-  EthernetAddress ethernet_address_;
+  EthernetAddress ethernet_address_; // 48位MAC地址
 
   // IP (known as Internet-layer or network-layer) address of the interface
-  Address ip_address_;
+  Address ip_address_; // 32位IP地址
+  std::unordered_map<uint32_t, std::pair<EthernetAddress, size_t>>
+    ip_to_mac_; // IP地址与MAC地址之间的映射，第二个参数表示已经缓存的时间
+  std::unordered_map<uint32_t, size_t> arp_timer_; // 存放发送的ARP帧的ip和时间,避免重发
+  std::unordered_map<uint32_t, std::vector<InternetDatagram>> waited_dagrams_; // iptoMac映射未知时，等待的数据报
+  std::queue<EthernetFrame> out_frames_;                                       // 等待发送的帧
+  const size_t IP_MAP_TTL;
+  const size_t ARP_TTL;
 
 public:
   // Construct a network interface with given Ethernet (network-access-layer) and IP (internet-layer)

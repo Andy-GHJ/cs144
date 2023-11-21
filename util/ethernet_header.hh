@@ -22,13 +22,13 @@ struct EthernetHeader
   static constexpr uint16_t TYPE_IPv4 = 0x800; //!< Type number for [IPv4](\ref rfc::rfc791)
   static constexpr uint16_t TYPE_ARP = 0x806;  //!< Type number for [ARP](\ref rfc::rfc826)
 
-  EthernetAddress dst;
-  EthernetAddress src;
-  uint16_t type;
+  EthernetAddress dst; // 目的MAC地址
+  EthernetAddress src; // 源MAC地址
+  uint16_t type;       // 2字节，表示上层协议类型，如0x0800表示IPv4，0x0806表示ARP
 
   // Return a string containing a header in human-readable format
-  std::string to_string() const;
+  std::string to_string() const; // 以字符串形式返回header内容
 
-  void parse( Parser& parser );
-  void serialize( Serializer& serializer ) const;
+  void parse( Parser& parser );                   // 解析header内容
+  void serialize( Serializer& serializer ) const; // 序列化header内容
 };
